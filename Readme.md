@@ -1,0 +1,1 @@
+docker cp sales.csv bd-pyspark-jupyter-lab:/data/
