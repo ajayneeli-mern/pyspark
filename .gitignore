@@ -1,1 +1,14 @@
-pyspark-zero-to-hero-master
+﻿# Local reference folders
+image/
+pdfs/
+pyspark-zero-to-hero-master/
+Specific questions/
+
+# Generated local output
+data/output/*
+!data/output/.gitkeep
+
+# Tooling artifacts
+.ipynb_checkpoints/
+*.log
+docs/
