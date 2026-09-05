@@ -1,4 +1,4 @@
-﻿from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession
 
 spark = (
     SparkSession.builder
@@ -7,8 +7,11 @@ spark = (
     .getOrCreate()
 )
 
-input_path = "/opt/data/input/sample.parquet"
-output_path = "/opt/data/output/sample_parquet_summary"
+import os
+
+data_dir = "/opt/data" if os.path.exists("/opt/data") else "/home/jupyter/data"
+input_path = f"{data_dir}/input/sample.parquet"
+output_path = f"{data_dir}/output/sample.parquet"
 
 df = spark.read.parquet(input_path)
 df.summary().write.mode("overwrite").parquet(output_path)

@@ -1,24 +1,34 @@
-﻿services:
+services:
   bd-pyspark-jupyter:
-    image: jupyter/pyspark-notebook:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: easewithdata/pyspark-jupyter-lab-old:latest
     container_name: bd-pyspark-jupyter-lab
     restart: unless-stopped
-    working_dir: /home/jovyan/notebooks
+    working_dir: /home/jupyter/
     depends_on:
       bd-spark-master:
         condition: service_healthy
     ports:
       - "8888:8888"
-      - "4040:4040"
+      - "4040-4045:4040-4045"
+      - "38000:38000"
+      - "38001:38001"
     environment:
       - SPARK_MASTER=spark://bd-spark-master:7077
+      - PYSPARK_PYTHON=/usr/bin/python3
+      - PYSPARK_DRIVER_PYTHON=/usr/local/bin/python
     volumes:
-      - ./notebooks:/home/jovyan/notebooks
-      - ./spark-apps:/home/jovyan/spark-apps
-      - ./data:/home/jovyan/data
-      - ./pdfs:/home/jovyan/pdfs
-      - ./image:/home/jovyan/image
-      - ./docs:/home/jovyan/docs
+      - ./notebooks:/home/jupyter/notebooks
+      - ./spark-apps:/home/jupyter/spark-apps
+      - ./data:/home/jupyter/data
+      - ./data:/opt/data
+      - ./pdfs:/home/jupyter/pdfs
+      - ./image:/home/jupyter/image
+      - ./docs:/home/jupyter/docs
+      - ./data/spark-events:/tmp/spark-events
+      - ./config/spark-defaults.conf:/spark/conf/spark-defaults.conf:ro
 
   bd-spark-master:
     image: bde2020/spark-master:3.3.0-hadoop3.3
@@ -29,12 +39,15 @@
       - "7077:7077"
     environment:
       - INIT_DAEMON_STEP=setup_spark
+      - PATH=/spark/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - ./spark-apps:/opt/spark-apps
       - ./data:/opt/data
       - ./notebooks:/opt/notebooks
+      - ./data/spark-events:/tmp/spark-events
+      - ./config/spark-defaults.conf:/spark/conf/spark-defaults.conf:ro
     healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/7077'"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080 >/dev/null"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -51,10 +64,12 @@
       - "8081:8081"
     environment:
       - SPARK_MASTER=spark://bd-spark-master:7077
+      - PYSPARK_PYTHON=/usr/bin/python3
     volumes:
       - ./spark-apps:/opt/spark-apps
       - ./data:/opt/data
       - ./notebooks:/opt/notebooks
+      - ./config/spark-defaults.conf:/spark/conf/spark-defaults.conf:ro
 
   bd-spark-worker-2:
     image: bde2020/spark-worker:3.3.0-hadoop3.3
@@ -67,10 +82,12 @@
       - "8082:8081"
     environment:
       - SPARK_MASTER=spark://bd-spark-master:7077
+      - PYSPARK_PYTHON=/usr/bin/python3
     volumes:
       - ./spark-apps:/opt/spark-apps
       - ./data:/opt/data
       - ./notebooks:/opt/notebooks
+      - ./config/spark-defaults.conf:/spark/conf/spark-defaults.conf:ro
 
   bd-spark-history-server:
     image: bde2020/spark-history-server:3.3.0-hadoop3.3
@@ -82,4 +99,5 @@
     ports:
       - "18081:18081"
     volumes:
-      - /tmp/spark-events-local:/tmp/spark-events
+      - ./data/spark-events:/tmp/spark-events
+      - ./config/spark-defaults.conf:/spark/conf/spark-defaults.conf:ro

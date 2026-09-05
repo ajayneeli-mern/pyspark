@@ -12,3 +12,5 @@ data/output/*
 .ipynb_checkpoints/
 *.log
 docs/
+
+data/spark-events/

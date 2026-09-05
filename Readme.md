@@ -1,4 +1,4 @@
-﻿# Local PySpark Docker workspace
+# Local PySpark Docker workspace
 
 ## Layout
 
@@ -11,8 +11,8 @@
 ## Start and test
 
 ```powershell
-docker compose up -d
-docker compose exec -T bd-spark-master /spark/bin/spark-submit --master spark://bd-spark-master:7077 /opt/spark-apps/test.py
+docker compose up -d --build
+docker compose exec -T bd-pyspark-jupyter spark-submit --master spark://bd-spark-master:7077 /home/jupyter/spark-apps/test.py
 ```
 
 Save a script in VS Code and submit it again. The bind mounts make it available immediately without rebuilding images or restarting containers.
@@ -22,9 +22,6 @@ Save a script in VS Code and submit it again. The bind mounts make it available 
 - Spark master: http://localhost:8080
 - Worker 1: http://localhost:8081
 - Worker 2: http://localhost:8082
+- Spark History Server: http://localhost:18081
+- Active Job Spark UIs: http://localhost:4040 (and 4041-4045 for concurrent notebooks)
 - JupyterLab: http://localhost:8888
-
-
-data move command
-
-docker cp sales.csv bd-pyspark-jupyter-lab:/home/jovyan/work/
