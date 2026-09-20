@@ -17,6 +17,8 @@ services:
       - "38001:38001"
     environment:
       - SPARK_MASTER=spark://bd-spark-master:7077
+      - SPARK_HOME=/spark
+      - PATH=/spark/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
       - PYSPARK_PYTHON=/usr/bin/python3
       - PYSPARK_DRIVER_PYTHON=/usr/local/bin/python
     volumes:

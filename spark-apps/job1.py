@@ -34,4 +34,5 @@ selected_df.show()
 df_filled = selected_df.fillna({'`cases.new`': 0, '`cases.active`': 0, '`cases.critical`': 0, '`cases.recovered`': 0, '`tests.total`': 0})
 df_filled.show()
 
+input("Spark UI is available at http://localhost:4040. Press Enter to stop the application...")
 spark.stop()

@@ -25,3 +25,12 @@ Save a script in VS Code and submit it again. The bind mounts make it available 
 - Spark History Server: http://localhost:18081
 - Active Job Spark UIs: http://localhost:4040 (and 4041-4045 for concurrent notebooks)
 - JupyterLab: http://localhost:8888
+
+
+Run it from the Jupyter terminal with:
+
+ /spark/bin/spark-submit --master spark://bd-spark-master:7077 /home/jupyter/spark-apps/job1.py
+
+ 8080 = Cluster UI 🏢
+
+4040 = Application UI 🔬
