@@ -1,4 +1,4 @@
-# Local PySpark Docker workspace
+﻿# Local PySpark Docker workspace
 
 ## Layout
 
@@ -25,12 +25,48 @@ Save a script in VS Code and submit it again. The bind mounts make it available 
 - Spark History Server: http://localhost:18081
 - Active Job Spark UIs: http://localhost:4040 (and 4041-4045 for concurrent notebooks)
 - JupyterLab: http://localhost:8888
+- Kafka UI: http://localhost:8085
 
 
 Run it from the Jupyter terminal with:
 
  /spark/bin/spark-submit --master spark://bd-spark-master:7077 /home/jupyter/spark-apps/job1.py
 
- 8080 = Cluster UI 🏢
+ 8080 = Cluster UI ðŸ¢
 
-4040 = Application UI 🔬
+4040 = Application UI ðŸ”¬
+## Kafka
+
+- Kafka UI: http://localhost:8085
+- Kafka broker for Spark/Jupyter containers: `kafka:9092`
+- Kafka broker for host clients: `localhost:9094`
+
+Kafka UI shows topics, messages, consumer groups, and streaming consumer lag.
+Start the stack with `docker compose up -d --build`, then create a topic if needed:
+
+```powershell
+docker compose exec kafka kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic events --partitions 1 --replication-factor 1
+```
+
+Use `kafka:9092` for `kafka.bootstrap.servers` in PySpark Structured Streaming.
+
+## Kafka + Spark Structured Streaming
+
+Live demo: `notebooks/28_kafka_structured_streaming.ipynb` produces a `rate` stream into Kafka topic `streaming_events` and reads it back with `readStream`/`writeStream`.
+
+Run it:
+
+1. Start the stack: `docker compose up -d --build`
+2. (Optional, deterministic) create the topic from a terminal:
+
+   ```powershell
+   docker compose exec kafka kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic streaming_events --partitions 1 --replication-factor 1
+   ```
+
+3. Open JupyterLab http://localhost:8888 and run the notebook. First run needs internet once — Spark downloads the connector jar `org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0`.
+
+What to look at while it streams:
+
+- **Kafka UI** http://localhost:8085 → **Topics** → `streaming_events` → **Messages** shows live records and partitions; **Consumer Groups** → `spark-streaming-demo` shows the running group and lag.
+- **Spark UI** http://localhost:4040 → **Streaming** tab shows both queries (producer + consumer), input rates, and batch durations.
+- The notebook's `awaitAnyTermination` prints each console batch pulled from Kafka; the last cell stops all streams cleanly.
